@@ -53,19 +53,30 @@ public class Exercise2_UserServiceTests
     // ---------------------------------------------------------------------------------
 
     [Test]
-    [Ignore("TODO - implement me, then delete this [Ignore] line")]
     public void Register_ValidDetails_ReturnsTrimmedUsername()
     {
         // Should assert that Register("  bobby  ", "Codes123") returns "bobby".
-        Assert.Fail("Not implemented yet");
+
+        string username = "  bobby  ";
+        string password = "Codes123";
+
+        string result = _service.Register(username, password);
+
+        Assert.That(result, Is.EqualTo("bobby"));
     }
 
     [Test]
-    [Ignore("TODO - implement me, then delete this [Ignore] line")]
     public void Register_NullUsername_ThrowsArgumentException()
     {
         // Should assert the message "Username must not be null".
-        Assert.Fail("Not implemented yet");
+
+        string username = null;
+        string password = "Codes123";
+
+        ArgumentException error = Assert.Throws<ArgumentException>(
+            () => _service.Register(username, password));
+
+        Assert.That(error.Message, Is.EqualTo("Username must not be null"));
     }
 
     [Test]
