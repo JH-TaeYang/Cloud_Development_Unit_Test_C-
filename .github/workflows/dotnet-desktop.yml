@@ -6,12 +6,12 @@ on:
     workflow_dispatch:
 
 jobs:
-  build:
+  build_deploy_back:
     strategy:
       matrix:
         configuration: [Debug, Release]
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     env:
       Solution_Name: UnitTestExercises.sln
@@ -39,3 +39,29 @@ jobs:
       run: dotnet test $env:Solution_Name --configuration $env:Configuration --no-build
       env:
         Configuration: ${{ matrix.configuration }}
+
+  build_deploy_front:
+      runs-on: ubuntu-latest
+    
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+    
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+    
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+    
+      - name: Build Docker image
+        run: docker build -t frontend:latest ./frontend
+    
+      - name: Tag Docker image
+        run: docker tag frontend:latest ${{ secrets.AWS_ECR_REGISTRY }}/frontend:latest
+    
+      - name: Push Docker image
+        run: docker push ${{ secrets.AWS_ECR_REGISTRY }}/frontend:latest
